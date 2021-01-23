@@ -92,9 +92,10 @@ def main(searchTerm, speedFactor = 1, reverbFactor = 40):
     dirs = makeDirs()
     fileName = generateFileName()
     youtubeUrl, songTitle = getUrlFromSearchTerm(searchTerm)
+    print(f'title -> {songTitle}')
     downloadSuccess = downloadAudioFromYoutube(youtubeUrl, fileName)
+    print(f'download success -> {downloadSuccess}')
     convertToWav = mp4ToWav(fileName)
-
     audioEffects = addAudioEffects(fileName, speedFactor, reverbFactor)
     convertToMp4 = wavToMp4(fileName)
     cleanup = cleanDirs()
