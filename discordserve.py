@@ -14,9 +14,9 @@ async def on_ready():
     print('starting...')
 
 @bot.command(name='play')
-async def playMusic(ctx, arg1, arg2):
+async def playMusic(ctx, arg1, arg2, arg3):
 
-    fileName, songTitle = main(arg1, arg2)
+    fileName, songTitle = main(arg1, arg2, arg3)
     filePath = f'{streamPath}/{fileName}.mp4'
 
     voiceChannel = ctx.author.voice.channel

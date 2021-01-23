@@ -46,9 +46,9 @@ def wavToMp4(fileName):
     audio = AudioSegment.from_file(inPath)
     audio.export(outPath, format = 'mp4')
 
-def addAudioEffects(fileName, speedFactor):
+def addAudioEffects(fileName, speedFactor, reverbFactor):
     fx = (
-        AudioEffectsChain().speed(speedFactor).reverb()
+        AudioEffectsChain().speed(speedFactor).reverb(reverberance=reverbFactor)
     )
 
     inFile = f'{wavDir}/{fileName}.wav'
@@ -88,14 +88,14 @@ streamDir = f'{pathDir}/streamAudio'
 
 print(pathDir, youtubeDir, wavDir, processedDir, streamDir)
 
-def main(searchTerm, speedFactor):
+def main(searchTerm, speedFactor = 1, reverbFactor = 40):
     dirs = makeDirs()
     fileName = generateFileName()
     youtubeUrl, songTitle = getUrlFromSearchTerm(searchTerm)
     downloadSuccess = downloadAudioFromYoutube(youtubeUrl, fileName)
     convertToWav = mp4ToWav(fileName)
 
-    audioEffects = addAudioEffects(fileName, speedFactor)
+    audioEffects = addAudioEffects(fileName, speedFactor, reverbFactor)
     convertToMp4 = wavToMp4(fileName)
     cleanup = cleanDirs()
 
@@ -105,5 +105,6 @@ if __name__ == '__main__':
 
     searchTerm = input("what search term? ")
     speedFactor = input("what speed factor? (2 = double speed) ")
+    reverbFactor = input("what reverb factor? (0-100) ")
 
-    main(searchTerm, speedFactor)
+    main(searchTerm, speedFactor, reverbFactor)
