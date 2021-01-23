@@ -89,6 +89,7 @@ streamDir = f'{pathDir}/streamAudio'
 print(pathDir, youtubeDir, wavDir, processedDir, streamDir)
 
 def main(searchTerm, speedFactor = 1, reverbFactor = 40):
+
     dirs = makeDirs()
     fileName = generateFileName()
     youtubeUrl, songTitle = getUrlFromSearchTerm(searchTerm)

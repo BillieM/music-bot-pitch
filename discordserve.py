@@ -16,13 +16,14 @@ async def on_ready():
 @bot.command(name='play')
 async def playMusic(ctx, arg1, arg2, arg3):
 
-    fileName, songTitle = main(arg1, arg2, arg3)
-    filePath = f'{streamPath}/{fileName}.mp4'
-
     voiceChannel = ctx.author.voice.channel
     channel = None
 
     if voiceChannel != None:
+
+        fileName, songTitle = main(arg1, arg2 , arg3)
+        filePath = f'{streamPath}/{fileName}.mp4'
+
         channel = voiceChannel.name
         vc = await voiceChannel.connect()
         await ctx.send(f'playing -> {songTitle}')
