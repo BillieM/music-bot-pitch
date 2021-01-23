@@ -13,6 +13,11 @@ streamPath = f'{pathDir}/streamAudio'
 async def on_ready():
     print('starting...')
 
+@bot.command(name = 'skip')
+async def skipSong(ctx):
+    if vc.is_playing:
+        vc.disconnect()
+
 @bot.command(name='play')
 async def playMusic(ctx, arg1, arg2, arg3):
 
