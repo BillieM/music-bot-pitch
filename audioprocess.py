@@ -46,9 +46,9 @@ def wavToMp4(fileName):
     audio = AudioSegment.from_file(inPath)
     audio.export(outPath, format = 'mp4')
 
-def addAudioEffects(fileName, speedFactor, reverbFactor):
+def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor):
     fx = (
-        AudioEffectsChain().speed(speedFactor).reverb(reverberance=reverbFactor)
+        AudioEffectsChain().speed(speedFactor).reverb(reverberance=reverbFactor).overdrive(gain=overdriveFactor)
     )
 
     inFile = f'{wavDir}/{fileName}.wav'
@@ -88,7 +88,7 @@ streamDir = f'{pathDir}/streamAudio'
 
 print(pathDir, youtubeDir, wavDir, processedDir, streamDir)
 
-def main(searchTerm, speedFactor = 1, reverbFactor = 40):
+def main(searchTerm, speedFactor = 1, reverbFactor = 30, overdriveFactor = 0):
 
     dirs = makeDirs()
     fileName = generateFileName()
@@ -97,7 +97,7 @@ def main(searchTerm, speedFactor = 1, reverbFactor = 40):
     downloadSuccess = downloadAudioFromYoutube(youtubeUrl, fileName)
     print(f'download success -> {downloadSuccess}')
     convertToWav = mp4ToWav(fileName)
-    audioEffects = addAudioEffects(fileName, speedFactor, reverbFactor)
+    audioEffects = addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor)
     convertToMp4 = wavToMp4(fileName)
     cleanup = cleanDirs()
 
