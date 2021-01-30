@@ -47,6 +47,14 @@ def wavToMp4(fileName):
     audio.export(outPath, format = 'mp4')
 
 def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor):
+
+    if speedFactor == None:
+        speedFactor = 1
+    if reverbFactor == None:
+        reverbFactor = 0
+    if overdriveFactor == None:
+        overdriveFacotr = 0
+
     fx = (
         AudioEffectsChain().speed(speedFactor).reverb(reverberance=reverbFactor).overdrive(gain=overdriveFactor)
     )
@@ -88,7 +96,7 @@ streamDir = f'{pathDir}/streamAudio'
 
 print(pathDir, youtubeDir, wavDir, processedDir, streamDir)
 
-def main(searchTerm, speedFactor = 1, reverbFactor = 30, overdriveFactor = 0):
+def main(searchTerm, speedFactor, reverbFactor, overdriveFactor):
 
     dirs = makeDirs()
     fileName = generateFileName()
