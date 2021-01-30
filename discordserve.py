@@ -19,14 +19,14 @@ async def skipSong(ctx):
         vc.disconnect()
 
 @bot.command(name='play')
-async def playMusic(ctx, arg1, arg2, arg3):
+async def playMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
 
     voiceChannel = ctx.author.voice.channel
     channel = None
 
     if voiceChannel != None:
 
-        fileName, songTitle = main(arg1, arg2 , arg3)
+        fileName, songTitle = main(arg1, arg2 , arg3, arg4)
         filePath = f'{streamPath}/{fileName}.mp4'
 
         channel = voiceChannel.name
