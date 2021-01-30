@@ -19,7 +19,7 @@ async def skipSong(ctx):
         vc.disconnect()
 
 @bot.command(name='play')
-async def playMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
+async def playMusic(ctx, arg1, arg2=1, arg3=0, arg4=0):
 
     voiceChannel = ctx.author.voice.channel
     channel = None
