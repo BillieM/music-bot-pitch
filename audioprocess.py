@@ -53,7 +53,7 @@ def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor):
     if reverbFactor == None:
         reverbFactor = 0
     if overdriveFactor == None:
-        overdriveFacotr = 0
+        overdriveFactor = 0
 
     fx = (
         AudioEffectsChain().speed(speedFactor).reverb(reverberance=reverbFactor).overdrive(gain=overdriveFactor)
