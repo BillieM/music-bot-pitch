@@ -9,12 +9,12 @@ import time
 from pydub import AudioSegment
 import sox
 
-def generateFileName():
+async def generateFileName():
     random.seed(time.time())
     fileName = ''.join(random.choice(ascii_letters) for _ in range(10))
     return fileName
 
-def getUrlFromSearchTerm(searchTerm):
+async def getUrlFromSearchTerm(searchTerm):
 
     videosSearch = VideosSearch(searchTerm, limit = 1)
 
@@ -23,7 +23,7 @@ def getUrlFromSearchTerm(searchTerm):
 
     return videoUrl, videoTitle
 
-def downloadAudioFromYoutube(url, fileName):
+async def downloadAudioFromYoutube(url, fileName):
 
     try:
         yt = YouTube(url)
@@ -34,19 +34,19 @@ def downloadAudioFromYoutube(url, fileName):
     except Exception as e:
         return False
 
-def mp4ToWav(fileName):
+async def mp4ToWav(fileName):
     inPath = f'{youtubeDir}/{fileName}.mp4'
     outPath = f'{wavDir}/{fileName}.wav'
     audio = AudioSegment.from_file(inPath)
     audio.export(outPath, format = 'wav')
 
-def wavToMp4(fileName):
+async def wavToMp4(fileName):
     inPath = f'{processedDir}/{fileName}.wav'
     outPath = f'{streamDir}/{fileName}.mp4'
     audio = AudioSegment.from_file(inPath)
     audio.export(outPath, format = 'mp4')
 
-def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor):
+async def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor):
 
     if speedFactor == None:
         speedFactor = 1
@@ -64,7 +64,7 @@ def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor):
 
     fx(inFile, outFile)
 
-def cleanDirs():
+async def cleanDirs():
     for file in os.listdir(youtubeDir):
         path = f'{youtubeDir}/{file}'
         os.unlink(path)
@@ -75,7 +75,7 @@ def cleanDirs():
         path = f'{processedDir}/{file}'
         os.unlink(path)
 
-def makeDirs():
+async def makeDirs():
     if not os.path.exists(youtubeDir):
         os.makedirs(youtubeDir)    
     
@@ -96,18 +96,18 @@ streamDir = f'{pathDir}/streamAudio'
 
 print(pathDir, youtubeDir, wavDir, processedDir, streamDir)
 
-def main(searchTerm, speedFactor, reverbFactor, overdriveFactor):
+async def main(searchTerm, speedFactor, reverbFactor, overdriveFactor):
 
-    dirs = makeDirs()
-    fileName = generateFileName()
-    youtubeUrl, songTitle = getUrlFromSearchTerm(searchTerm)
+    dirs = await makeDirs()
+    fileName = await generateFileName()
+    youtubeUrl, songTitle = await getUrlFromSearchTerm(searchTerm)
     print(f'title -> {songTitle}')
-    downloadSuccess = downloadAudioFromYoutube(youtubeUrl, fileName)
+    downloadSuccess = await downloadAudioFromYoutube(youtubeUrl, fileName)
     print(f'download success -> {downloadSuccess}')
-    convertToWav = mp4ToWav(fileName)
-    audioEffects = addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor)
-    convertToMp4 = wavToMp4(fileName)
-    cleanup = cleanDirs()
+    convertToWav = await mp4ToWav(fileName)
+    audioEffects = await addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor)
+    convertToMp4 = await wavToMp4(fileName)
+    cleanup = await cleanDirs()
 
     return fileName, songTitle
 
