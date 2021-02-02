@@ -7,7 +7,6 @@ import random
 from string import ascii_letters
 import time
 from pydub import AudioSegment
-import sox
 
 async def generateFileName():
     random.seed(time.time())

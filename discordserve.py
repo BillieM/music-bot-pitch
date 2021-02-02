@@ -9,6 +9,24 @@ bot = commands.Bot(command_prefix='#', description='music pitch bot')
 pathDir = os.path.abspath(os.path.dirname(__file__))
 streamPath = f'{pathDir}/streamAudio'
 
+def getSongString(songDict):
+    songTitle = songDict['name']
+    try:
+        speed = float(songDict['speed'])
+    except:
+        speed = 1
+    try:
+        reverb = float(songDict['reverb'])
+    except:
+        reverb = 0
+    try:
+        overdrive = float(songDict['overdrive'])
+    except: 
+        overdrive = 0
+
+    songString = f'{songTitle} [{speed}x speed, {reverb}% reverb, {overdrive}db overdrive]'
+    return songString
+
 class Queue():
     def __init__(self):
         self.queueList = []
@@ -16,24 +34,37 @@ class Queue():
         self.vc = None
         self.skip = False
 
-    def addToQueue(self, fileName, filePath):
-        self.queueList.append({'name': fileName, 'path': filePath})
+    def addToQueue(self, fileName, filePath, speed, reverb, overdrive):
+        self.queueList.append({'name': fileName, 'path': filePath, 'speed': speed, 'reverb': reverb, 'overdrive': overdrive})
+        return self.queueList[-1]
 
     def removeCurrentSong(self):
         self.queueList.pop(0)
 
     def getNextSong(self):
-        nextSongTitle = self.queueList[0]['name']
-        nextSongPath = self.queueList[0]['path']
+        nextSong = self.queueList[0]
 
-        return nextSongTitle, nextSongPath
+        return nextSong
 
     def isNextSong(self):
         if len(self.queueList) > 0:
             return True
         else:
             return False
-        
+
+    def getQueueString(self):
+        if len(self.queueList) > 0:
+            queueItems = []
+            for i, song in enumerate(self.queueList):
+                songString = getSongString(song)
+                if i == 0:
+                    i = "currently playing"
+                queueItems.append(f'{i} - {songString}')
+            queueString = '\n💕💕💕 the queue 💕💕💕\n' + ''.join([f'\n{queueItem}\n' for queueItem in queueItems]) + '\n\n'
+            return queueString
+        else:
+            return "queue is empty! use #play to add to queue"
+
 queue = Queue()
 
 @bot.event
@@ -44,19 +75,28 @@ async def on_ready():
 async def skipSong(ctx):
     queue.skip = True
 
+@bot.command(name = 'queue')
+async def showQueue(ctx):
+    await ctx.send(queue.getQueueString())
+
 @bot.command(name='play')
 async def queueMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
 
     voiceChannel = ctx.author.voice.channel
 
     if voiceChannel != None:
-        fileName, songTitle = await main(arg1, arg2 , arg3, arg4)
-        filePath = f'{streamPath}/{fileName}.mp4'
-        queue.addToQueue(songTitle, filePath)
-        await ctx.send(f'queued -> {songTitle}') 
-        if not queue.playing:
-            print("queue not playing")
-            await playMusic(ctx)
+        try:
+            fileName, songTitle = await main(arg1, arg2 , arg3, arg4)
+            filePath = f'{streamPath}/{fileName}.mp4'
+            queuedSong = queue.addToQueue(songTitle, filePath, speed = arg2, reverb = arg3, overdrive = arg4)
+            queuedSongString = getSongString(queuedSong)
+            if not queue.playing:
+                await playMusic(ctx)
+            else:
+                await ctx.send(f'queued -> {queuedSongString}') 
+
+        except Exception as e:
+            await ctx.send(e)
     else:
         await ctx.send(str(ctx.author.name) + "is not in a channel.")
 
@@ -65,10 +105,15 @@ async def playMusic(ctx):
     voiceChannel = ctx.author.voice.channel
 
     if not queue.playing:
+        queue.playing = True
         queue.vc = await voiceChannel.connect()
 
-    nextSongTitle, nextSongPath = queue.getNextSong()
+    nextSong = queue.getNextSong()
 
+    nextSongPath = nextSong['path']
+    nextSongString = getSongString(nextSong)
+
+    await ctx.send(f"now playing - {nextSongString}")
     queue.vc.play(discord.FFmpegPCMAudio(source = nextSongPath))
 
     while queue.vc.is_playing():
@@ -77,40 +122,16 @@ async def playMusic(ctx):
         else:
             queue.vc.stop()
             queue.skip = False
-
+    else:
+        await ctx.send("song finished/ skipped!")
+    
     queue.removeCurrentSong()
 
     if queue.isNextSong():
         await playMusic(ctx)
     else:
+        await ctx.send("queue finished, disconnecting")
+        queue.playing = False
         await queue.vc.disconnect()
         
 bot.run('ODAyMjI5OTkzODk5Mjk0Nzgx.YAsM5w.OAGfkFGt79Oebxczw8oPt77mEUM')
-
-
-'''
-@bot.command(name='play')
-async def queueMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
-
-    voiceChannel = ctx.author.voice.channel
-    channel = None
-
-    if voiceChannel != None:
-
-        fileName, songTitle = main(arg1, arg2 , arg3, arg4)
-        filePath = f'{streamPath}/{fileName}.mp4'
-
-        channel = voiceChannel.name
-        vc = await voiceChannel.connect()
-        await ctx.send(f'playing -> {songTitle}')
-        vc.play(discord.FFmpegPCMAudio(source = filePath))
-        while vc.is_playing():
-            await sleep(.1)
-        await ctx.send('song finished!')        
-        await vc.disconnect()
-    else:
-        await ctx.send(str(ctx.author.name) + "is not in a channel.")
-
-
-
-'''
