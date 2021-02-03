@@ -90,7 +90,7 @@ async def skipSong(ctx):
 async def removeSong(ctx, arg1):
     queue = getQueueObject(ctx)
     try:
-        song = queue.queueList[arg1]
+        song = queue.queueList[int(arg1)]
         songString = getSongString(song)
         await ctx.send(f'removing song {songString}')
         queue.queueList.remove(song)
