@@ -9,6 +9,16 @@ bot = commands.Bot(command_prefix='#', description='music pitch bot')
 pathDir = os.path.abspath(os.path.dirname(__file__))
 streamPath = f'{pathDir}/streamAudio'
 
+queueDir = {}
+
+def getQueueObject(serverId):
+    if serverId in queueDir:
+        return queueDir[serverId]
+    else:
+        queue = Queue()
+        queueDir[serverId] = queue
+        return queue
+
 def getSongString(songDict):
     songTitle = songDict['name']
     try:
@@ -73,14 +83,18 @@ async def on_ready():
 
 @bot.command(name = 'skip')
 async def skipSong(ctx):
+    queue = getQueueObject(ctx.guild.id)
     queue.skip = True
 
 @bot.command(name = 'queue')
 async def showQueue(ctx):
+    queue = getQueueObject(ctx.guild.id)
     await ctx.send(queue.getQueueString())
 
 @bot.command(name='play')
 async def queueMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
+
+    queue = getQueueObject(ctx.guild.id)
 
     voiceChannel = ctx.author.voice.channel
 
@@ -101,6 +115,8 @@ async def queueMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
         await ctx.send(str(ctx.author.name) + "is not in a channel.")
 
 async def playMusic(ctx):
+
+    queue = getQueueObject(ctx.guild.id)
 
     voiceChannel = ctx.author.voice.channel
 
