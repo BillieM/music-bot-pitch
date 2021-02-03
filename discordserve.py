@@ -5,7 +5,7 @@ from asyncio import sleep
 import os
 
 bot = commands.Bot(command_prefix='#', description='music pitch bot')
-apiToken = os.environ.get('MUSIC-BOT')
+apiToken = os.environ.get('MUSICBOT')
 pathDir = os.path.abspath(os.path.dirname(__file__))
 streamPath = f'{pathDir}/streamAudio'
 
