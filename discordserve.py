@@ -4,6 +4,8 @@ from audioprocess import main
 from asyncio import sleep
 import os
 
+import traceback
+
 bot = commands.Bot(command_prefix='#', description='music pitch bot')
 apiToken = os.environ.get('MUSICBOT')
 pathDir = os.path.abspath(os.path.dirname(__file__))
@@ -88,7 +90,7 @@ async def skipSong(ctx):
 
 @bot.command(name = 'remove')
 async def removeSong(ctx, arg1):
-    queue = getQueueObject(ctx)
+    queue = getQueueObject(ctx.guild.id)
     try:
         song = queue.queueList[int(arg1)]
         songString = getSongString(song)
@@ -96,6 +98,7 @@ async def removeSong(ctx, arg1):
         queue.queueList.remove(song)
     except Exception as e:
         await ctx.send(e)
+        print(traceback.format_exc())
 
 @bot.command(name = 'queue')
 async def showQueue(ctx):
