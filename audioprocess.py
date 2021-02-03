@@ -93,8 +93,6 @@ wavDir = f'{pathDir}/wavAudio'
 processedDir = f'{pathDir}/processedAudio'
 streamDir = f'{pathDir}/streamAudio'
 
-print(pathDir, youtubeDir, wavDir, processedDir, streamDir)
-
 async def main(searchTerm, speedFactor, reverbFactor, overdriveFactor):
 
     dirs = await makeDirs()
