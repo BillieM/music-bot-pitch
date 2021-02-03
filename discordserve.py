@@ -5,18 +5,18 @@ from asyncio import sleep
 import os
 
 bot = commands.Bot(command_prefix='#', description='music pitch bot')
-
+apiToken = os.environ.get('MUSIC-BOT')
 pathDir = os.path.abspath(os.path.dirname(__file__))
 streamPath = f'{pathDir}/streamAudio'
 
-queueDir = {}
+queueDict = {}
 
 def getQueueObject(serverId):
-    if serverId in queueDir:
-        return queueDir[serverId]
+    if serverId in queueDict:
+        return queueDict[serverId]
     else:
         queue = Queue()
-        queueDir[serverId] = queue
+        queueDict[serverId] = queue
         return queue
 
 def getSongString(songDict):
@@ -86,6 +86,17 @@ async def skipSong(ctx):
     queue = getQueueObject(ctx.guild.id)
     queue.skip = True
 
+@bot.command(name = 'remove')
+async def removeSong(ctx, arg1):
+    queue = getQueueObject(ctx)
+    try:
+        song = queue.queueList[arg1]
+        songString = getSongString(song)
+        await ctx.send(f'removing song {songString}')
+        queue.queueList.remove(song)
+    except Exception as e:
+        await ctx.send(e)
+
 @bot.command(name = 'queue')
 async def showQueue(ctx):
     queue = getQueueObject(ctx.guild.id)
@@ -150,4 +161,4 @@ async def playMusic(ctx):
         queue.playing = False
         await queue.vc.disconnect()
         
-bot.run('ODAyMjI5OTkzODk5Mjk0Nzgx.YAsM5w.OAGfkFGt79Oebxczw8oPt77mEUM')
+bot.run(apiToken)
