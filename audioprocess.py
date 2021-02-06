@@ -45,7 +45,7 @@ async def wavToMp4(fileName):
     audio = AudioSegment.from_file(inPath)
     audio.export(outPath, format = 'mp4')
 
-async def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor):
+async def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor, reverse):
 
     if speedFactor == None:
         speedFactor = 1
@@ -54,9 +54,14 @@ async def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor):
     if overdriveFactor == None:
         overdriveFactor = 0
 
-    fx = (
-        AudioEffectsChain().speed(speedFactor).reverb(reverberance=reverbFactor).overdrive(gain=overdriveFactor)
-    )
+    if reverse:
+        fx = (
+            AudioEffectsChain().reverse().speed(speedFactor).reverb(reverberance=reverbFactor).overdrive(gain=overdriveFactor)
+        )
+    else:
+        fx = (
+            AudioEffectsChain().speed(speedFactor).reverb(reverberance=reverbFactor).overdrive(gain=overdriveFactor)
+        )
 
     inFile = f'{wavDir}/{fileName}.wav'
     outFile = f'{processedDir}/{fileName}.wav'
@@ -93,7 +98,7 @@ wavDir = f'{pathDir}/wavAudio'
 processedDir = f'{pathDir}/processedAudio'
 streamDir = f'{pathDir}/streamAudio'
 
-async def main(searchTerm, speedFactor, reverbFactor, overdriveFactor):
+async def main(searchTerm, speedFactor, reverbFactor, overdriveFactor, reverse):
 
     dirs = await makeDirs()
     fileName = await generateFileName()
@@ -102,7 +107,7 @@ async def main(searchTerm, speedFactor, reverbFactor, overdriveFactor):
     downloadSuccess = await downloadAudioFromYoutube(youtubeUrl, fileName)
     print(f'download success -> {downloadSuccess}')
     convertToWav = await mp4ToWav(fileName)
-    audioEffects = await addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor)
+    audioEffects = await addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor, reverse)
     convertToMp4 = await wavToMp4(fileName)
     cleanup = await cleanDirs()
 
