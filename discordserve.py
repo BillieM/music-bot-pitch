@@ -3,8 +3,8 @@ from discord.ext import commands
 from audioprocess import main
 from asyncio import sleep
 import os
-
 import traceback
+from queuehandling import Queue, getSongString
 
 bot = commands.Bot(command_prefix='#', description='music pitch bot')
 apiToken = os.environ.get('MUSICBOT')
@@ -21,63 +21,27 @@ def getQueueObject(serverId):
         queueDict[serverId] = queue
         return queue
 
-def getSongString(songDict):
-    songTitle = songDict['name']
-    try:
-        speed = float(songDict['speed'])
-    except:
-        speed = 1
-    try:
-        reverb = float(songDict['reverb'])
-    except:
-        reverb = 0
-    try:
-        overdrive = float(songDict['overdrive'])
-    except: 
-        overdrive = 0
+async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
 
-    songString = f'{songTitle} [{speed}x speed, {reverb}% reverb, {overdrive}db overdrive]'
-    return songString
+    queue = getQueueObject(ctx.guild.id)
 
-class Queue():
-    def __init__(self):
-        self.queueList = []
-        self.playing = False
-        self.vc = None
-        self.skip = False
+    voiceChannel = ctx.author.voice.channel
 
-    def addToQueue(self, fileName, filePath, speed, reverb, overdrive):
-        self.queueList.append({'name': fileName, 'path': filePath, 'speed': speed, 'reverb': reverb, 'overdrive': overdrive})
-        return self.queueList[-1]
+    if voiceChannel != None:
+        try:
+            fileName, songTitle = await main(arg1, arg2 , arg3, arg4, reverse)
+            filePath = f'{streamPath}/{fileName}.mp4'
+            queuedSong = queue.addToQueue(songTitle, filePath, speed = arg2, reverb = arg3, overdrive = arg4, reversed = reverse)
+            queuedSongString = getSongString(queuedSong)
+            if not queue.playing:
+                await playMusic(ctx)
+            else:
+                await ctx.send(f'queued -> {queuedSongString}') 
 
-    def removeCurrentSong(self):
-        self.queueList.pop(0)
-
-    def getNextSong(self):
-        nextSong = self.queueList[0]
-
-        return nextSong
-
-    def isNextSong(self):
-        if len(self.queueList) > 0:
-            return True
-        else:
-            return False
-
-    def getQueueString(self):
-        if len(self.queueList) > 0:
-            queueItems = []
-            for i, song in enumerate(self.queueList):
-                songString = getSongString(song)
-                if i == 0:
-                    i = "currently playing"
-                queueItems.append(f'{i} - {songString}')
-            queueString = '\n💕💕💕 the queue 💕💕💕\n' + ''.join([f'\n{queueItem}\n' for queueItem in queueItems]) + '\n\n'
-            return queueString
-        else:
-            return "queue is empty! use #play to add to queue"
-
-queue = Queue()
+        except Exception as e:
+            await ctx.send(e)
+    else:
+        await ctx.send(str(ctx.author.name) + "is not in a channel.")
 
 @bot.event
 async def on_ready():
@@ -107,26 +71,12 @@ async def showQueue(ctx):
 
 @bot.command(name='play')
 async def queueMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
+    await addToQueue(ctx, arg1, arg2, arg3, arg4, reverse=False)
 
-    queue = getQueueObject(ctx.guild.id)
+@bot.command(name='revplay')
+async def queueRevMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
+    await addToQueue(ctx, arg1, arg2, arg3, arg4, reverse=True)
 
-    voiceChannel = ctx.author.voice.channel
-
-    if voiceChannel != None:
-        try:
-            fileName, songTitle = await main(arg1, arg2 , arg3, arg4)
-            filePath = f'{streamPath}/{fileName}.mp4'
-            queuedSong = queue.addToQueue(songTitle, filePath, speed = arg2, reverb = arg3, overdrive = arg4)
-            queuedSongString = getSongString(queuedSong)
-            if not queue.playing:
-                await playMusic(ctx)
-            else:
-                await ctx.send(f'queued -> {queuedSongString}') 
-
-        except Exception as e:
-            await ctx.send(e)
-    else:
-        await ctx.send(str(ctx.author.name) + "is not in a channel.")
 
 async def playMusic(ctx):
 
