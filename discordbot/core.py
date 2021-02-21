@@ -9,6 +9,7 @@ from songs import Song
 bot = commands.Bot(command_prefix='#', description='music pitch bot')
 apiToken = os.environ.get('MUSICBOT')
 dirs = Dirs()
+dirs.dirsSetup()
 queues = Queues(dirs)
 
 async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
@@ -78,12 +79,13 @@ async def playMusic(ctx):
         queue.playing = True
         queue.vc = await voiceChannel.connect()
 
-    nextSong = queue.getNextSong()
+    song = queue.getNextSong()
 
-    nextSongPath = nextSong['path']
-    nextSongString = getSongString(nextSong)
+    '''
+    song path here
+    '''
 
-    await ctx.send(f"now playing - {nextSongString}")
+    await ctx.send(f"now playing - {song}")
     queue.vc.play(discord.FFmpegPCMAudio(source = nextSongPath))
 
     while queue.vc.is_playing():
@@ -93,6 +95,7 @@ async def playMusic(ctx):
             queue.vc.stop()
             queue.skip = False
     else:
+        song.postStreamClean()
         await ctx.send("song finished/ skipped!")
     
     queue.removeCurrentSong()
