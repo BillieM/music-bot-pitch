@@ -27,8 +27,8 @@ class Queue(list):
         '''
         return 'queue str here'
 
-    def addToQueue(self, fileName, filePath, speed, reverb, overdrive, reversed):
-        self.append({'name': fileName, 'path': filePath, 'speed': speed, 'reverb': reverb, 'overdrive': overdrive, 'reversed': reversed})
+    def addToQueue(self, song):
+        self.append(song)
         return self[-1]
 
     def removeCurrentSong(self):
@@ -45,15 +45,14 @@ class Queue(list):
         else:
             return False
 
-    def getQueueString(self):
-        if len(self) > 0:
-            queueItems = []
-            for i, song in enumerate(self):
-                songString = getSongString(song)
-                if i == 0:
-                    i = "currently playing"
-                queueItems.append(f'{i} - {songString}')
-            queueString = '\n💕💕💕 the queue 💕💕💕\n' + ''.join([f'\n{queueItem}\n' for queueItem in queueItems]) + '\n\n'
-            return queueString
-        else:
-            return "queue is empty! use #play to add to queue"
+    # def getQueueString(self):
+    #     if len(self) > 0:
+    #         queueItems = []
+    #         for i, song in enumerate(self):
+    #             if i == 0:
+    #                 i = "currently playing"
+    #             queueItems.append(f'{i} - {song}')
+    #         queueString = '\n💕💕💕 the queue 💕💕💕\n' + ''.join([f'\n{queueItem}\n' for queueItem in queueItems]) + '\n\n'
+    #         return queueString
+    #     else:
+    #         return "queue is empty! use #play to add to queue"
