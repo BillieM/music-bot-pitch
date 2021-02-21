@@ -1,10 +1,25 @@
 import os
 import shutil
 
+dirsConfig = {
+    "baseAudio": {
+        "requiresOnRunClean": False
+    },
+    "wavAudio": {
+        "requiresOnRunClean": True
+    },
+    "processedAudio": {
+        "requiresOnRunClean": True
+    },
+    "streamAudio": {
+        "requiresOnRunClean": True
+    }
+}
+
 class Dirs(dict):
 
     def __init__(self):
-        self.basePath = os.path.abspath(os.path.dirname(__file__))
+        self.basePath = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)) + '/audiofiles'
 
     def configDirs(self, dirsConfig):
         for dirName, dirConfig in zip(dirsConfig.keys(), dirsConfig.values()):
@@ -13,7 +28,7 @@ class Dirs(dict):
 
     def cleanDirs(self):
         for dir in self.values():
-            if dir.requiresOnRunClean:
+            if dir.requiresOnRunClean and os.path.exists(dir.dirPath):
                 shutil.rmtree(dir.dirPath)
 
     def makeDirs(self):
