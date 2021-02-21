@@ -5,10 +5,11 @@ from asyncio import sleep
 import os
 import traceback
 from queuehandling import Queue, getSongString
+from 
 
 bot = commands.Bot(command_prefix='#', description='music pitch bot')
 apiToken = os.environ.get('MUSICBOT')
-pathDir = os.path.abspath(os.path.dirname(__file__))
+dirs = Dirs()
 streamPath = f'{pathDir}/streamAudio'
 
 queueDict = {}
