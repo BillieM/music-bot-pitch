@@ -1,5 +1,8 @@
 
 def getSongString(songDict):
+    '''
+    move this function to the __repr__ method of the Song() class
+    '''
     songTitle = songDict['name']
 
     if songDict['reversed']:
@@ -22,6 +25,11 @@ def getSongString(songDict):
     return songString
 
 class Queue():
+
+    '''
+    modify this to use inheritance of a list
+    '''
+
     def __init__(self):
         self.queueList = []
         self.playing = False
