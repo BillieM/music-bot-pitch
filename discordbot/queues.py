@@ -2,7 +2,7 @@ class Queues(dict):
     def __init__(self, dirs):
         self.dirs = dirs 
 
-    def getQueueObject(self.serverId):
+    def getQueueObject(self, serverId):
         if serverId in self:
             queue = self[serverId]
         else:
@@ -22,10 +22,16 @@ class Queue(list):
         self.skip = False
 
     def __repr__(self):
-        '''
-        to add proper queue string
-        '''
-        return 'queue str here'
+        if len(self) > 0:
+            queueItems = []
+            for i, song in enumerate(self):
+                if i == 0:
+                    i = 'currently playing'
+                queueItems.append(f'{i} - {song}')
+            queueString = '\n💕💕💕 the queue 💕💕💕\n' + ''.join([f'\n{queueItem}\n' for queueItem in queueItems]) + '\n\n'
+            return queueString
+        else:
+            return 'queue is empty! use #help for instructions to add songs to the queue'
 
     def addToQueue(self, song):
         self.append(song)
