@@ -11,11 +11,6 @@ class Queues(dict):
         return queue
 
 class Queue(list):
-
-    '''
-    modify this to use inheritance of a list
-    '''
-
     def __init__(self):
         self.playing = False
         self.vc = None
