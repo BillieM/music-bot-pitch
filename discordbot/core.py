@@ -5,6 +5,7 @@ import os
 import traceback
 from queues import Queues
 from songs import Song
+from dirs import Dirs
 
 bot = commands.Bot(command_prefix='#', description='music pitch bot')
 apiToken = os.environ.get('MUSICBOT')
@@ -21,16 +22,24 @@ async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
     if voiceChannel != None:
         try:
             song = Song(
-                searchTerm = arg1
+                dirs = dirs,
+                searchTerm = arg1,
+                reverse = reverse,
+                speed = arg2,
+                reverb = arg3,
+                overdrive = arg4
             )
-            song.processSong()
+
+            await song.processSong()
+            
             queue.addToQueue(song)
             if not queue.playing:
                 await playMusic(ctx)
             else:
                 await ctx.send(f'queued -> {song}')
         except Exception as e:
-            ctx.send(e)
+            await ctx.send(traceback.format_exc())
+            print(traceback.format_exc())
     else:
         await ctx.send(str(ctx.author.name) + "is not in a channel.")
 
@@ -45,11 +54,10 @@ async def skipSong(ctx):
 
 @bot.command(name = 'remove')
 async def removeSong(ctx, arg1):
-    queue = queue.getQueueObject(ctx.guild.id)
+    queue = queues.getQueueObject(ctx.guild.id)
     try:
-        song = queue.queueList[int(arg1)]
-        songString = getSongString(song)
-        await ctx.send(f'removing song {songString}')
+        song = queue[int(arg1)]
+        await ctx.send(f'removing song {song}')
         queue.queueList.remove(song)
     except Exception as e:
         await ctx.send(e)
@@ -81,12 +89,8 @@ async def playMusic(ctx):
 
     song = queue.getNextSong()
 
-    '''
-    song path here
-    '''
-
-    await ctx.send(f"now playing - {song}")
-    queue.vc.play(discord.FFmpegPCMAudio(source = nextSongPath))
+    await ctx.send(f"now playing:\n{song}")
+    queue.vc.play(discord.FFmpegPCMAudio(source = song.streamPath))
 
     while queue.vc.is_playing():
         if not queue.skip:
@@ -95,7 +99,7 @@ async def playMusic(ctx):
             queue.vc.stop()
             queue.skip = False
     else:
-        song.postStreamClean()
+        await song.postStreamClean()
         await ctx.send("song finished/ skipped!")
     
     queue.removeCurrentSong()
