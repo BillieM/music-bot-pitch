@@ -1,0 +1,21 @@
+store coins in database
+    with:
+        some reference to artist
+        coin name
+        coin value
+            based on some index
+
+ability to peg non artist coins against other currencies
+
+every ~24 hours, make an api call to refresh coin values in db
+    based on artists streaming popularity
+
+dynamic currencies
+    ashnicoins
+    tommy cash
+
+pegged currencies
+    frogdollar
+
+store historic prices so we can graph
+    db row per 

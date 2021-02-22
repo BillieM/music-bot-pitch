@@ -42,7 +42,6 @@ class Queue(list):
 
     def getNextSong(self):
         nextSong = self[0]
-
         return nextSong
 
     def isNextSong(self):
@@ -50,15 +49,3 @@ class Queue(list):
             return True
         else:
             return False
-
-    # def getQueueString(self):
-    #     if len(self) > 0:
-    #         queueItems = []
-    #         for i, song in enumerate(self):
-    #             if i == 0:
-    #                 i = "currently playing"
-    #             queueItems.append(f'{i} - {song}')
-    #         queueString = '\n💕💕💕 the queue 💕💕💕\n' + ''.join([f'\n{queueItem}\n' for queueItem in queueItems]) + '\n\n'
-    #         return queueString
-    #     else:
-    #         return "queue is empty! use #play to add to queue"
