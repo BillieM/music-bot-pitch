@@ -13,6 +13,7 @@ dirs = Dirs()
 dirs.dirsSetup()
 queues = Queues(dirs)
 
+
 async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
 
     queue = queues.getQueueObject(ctx.guild.id)
@@ -22,16 +23,16 @@ async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
     if voiceChannel != None:
         try:
             song = Song(
-                dirs = dirs,
-                searchTerm = arg1,
-                reverse = reverse,
-                speed = arg2,
-                reverb = arg3,
-                overdrive = arg4
+                dirs=dirs,
+                searchTerm=arg1,
+                reverse=reverse,
+                speed=arg2,
+                reverb=arg3,
+                overdrive=arg4
             )
 
             await song.processSong()
-            
+
             queue.addToQueue(song)
             if not queue.playing:
                 await playMusic(ctx)
@@ -43,16 +44,19 @@ async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
     else:
         await ctx.send(str(ctx.author.name) + "is not in a channel.")
 
+
 @bot.event
 async def on_ready():
     print('starting...')
 
-@bot.command(name = 'skip')
+
+@bot.command(name='skip')
 async def skipSong(ctx):
     queue = queues.getQueueObject(ctx.guild.id)
     queue.skip = True
 
-@bot.command(name = 'remove')
+
+@bot.command(name='remove')
 async def removeSong(ctx, arg1):
     queue = queues.getQueueObject(ctx.guild.id)
     try:
@@ -63,14 +67,17 @@ async def removeSong(ctx, arg1):
         await ctx.send(e)
         print(traceback.format_exc())
 
-@bot.command(name = 'queue')
+
+@bot.command(name='queue')
 async def showQueue(ctx):
     queue = queues.getQueueObject(ctx.guild.id)
     await ctx.send(queue)
 
+
 @bot.command(name='play')
 async def queueMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
     await addToQueue(ctx, arg1, arg2, arg3, arg4, reverse=False)
+
 
 @bot.command(name='revplay')
 async def queueRevMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
@@ -90,7 +97,7 @@ async def playMusic(ctx):
     song = queue.getNextSong()
 
     await ctx.send(f"now playing:\n{song}")
-    queue.vc.play(discord.FFmpegPCMAudio(source = song.streamPath))
+    queue.vc.play(discord.FFmpegPCMAudio(source=song.streamPath))
 
     while queue.vc.is_playing():
         if not queue.skip:
@@ -101,7 +108,7 @@ async def playMusic(ctx):
     else:
         await song.postStreamClean()
         await ctx.send("song finished/ skipped!")
-    
+
     queue.removeCurrentSong()
 
     if queue.isNextSong():
@@ -110,5 +117,5 @@ async def playMusic(ctx):
         await ctx.send("queue finished, disconnecting")
         queue.playing = False
         await queue.vc.disconnect()
-        
+
 bot.run(apiToken)

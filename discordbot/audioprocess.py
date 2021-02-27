@@ -8,19 +8,22 @@ from string import ascii_letters
 import time
 from pydub import AudioSegment
 
+
 async def generateFileName():
     random.seed(time.time())
     fileName = ''.join(random.choice(ascii_letters) for _ in range(10))
     return fileName
 
+
 async def getUrlFromSearchTerm(searchTerm):
 
-    videosSearch = VideosSearch(searchTerm, limit = 1)
+    videosSearch = VideosSearch(searchTerm, limit=1)
 
-    videoTitle = videosSearch.result()['result'][0]['accessibility']['title'] 
+    videoTitle = videosSearch.result()['result'][0]['accessibility']['title']
     videoUrl = videosSearch.result()['result'][0]['link']
 
     return videoUrl, videoTitle
+
 
 async def downloadAudioFromYoutube(url, fileName):
 
@@ -33,17 +36,20 @@ async def downloadAudioFromYoutube(url, fileName):
     except Exception as e:
         return False
 
+
 async def mp4ToWav(fileName):
     inPath = f'{youtubeDir}/{fileName}.mp4'
     outPath = f'{wavDir}/{fileName}.wav'
     audio = AudioSegment.from_file(inPath)
-    audio.export(outPath, format = 'wav')
+    audio.export(outPath, format='wav')
+
 
 async def wavToMp4(fileName):
     inPath = f'{processedDir}/{fileName}.wav'
     outPath = f'{streamDir}/{fileName}.mp4'
     audio = AudioSegment.from_file(inPath)
-    audio.export(outPath, format = 'mp4')
+    audio.export(outPath, format='mp4')
+
 
 async def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor, reverse):
 
@@ -56,17 +62,20 @@ async def addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor, 
 
     if reverse:
         fx = (
-            AudioEffectsChain().reverse().speed(speedFactor).reverb(reverberance=reverbFactor).overdrive(gain=overdriveFactor)
+            AudioEffectsChain().reverse().speed(speedFactor).reverb(
+                reverberance=reverbFactor).overdrive(gain=overdriveFactor)
         )
     else:
         fx = (
-            AudioEffectsChain().speed(speedFactor).reverb(reverberance=reverbFactor).overdrive(gain=overdriveFactor)
+            AudioEffectsChain().speed(speedFactor).reverb(
+                reverberance=reverbFactor).overdrive(gain=overdriveFactor)
         )
 
     inFile = f'{wavDir}/{fileName}.wav'
     outFile = f'{processedDir}/{fileName}.wav'
 
     fx(inFile, outFile)
+
 
 async def cleanDirs():
     for file in os.listdir(youtubeDir):
@@ -79,10 +88,11 @@ async def cleanDirs():
         path = f'{processedDir}/{file}'
         os.unlink(path)
 
+
 async def makeDirs():
     if not os.path.exists(youtubeDir):
-        os.makedirs(youtubeDir)    
-    
+        os.makedirs(youtubeDir)
+
     if not os.path.exists(wavDir):
         os.makedirs(wavDir)
 
@@ -97,6 +107,7 @@ youtubeDir = f'{pathDir}/downloadedAudio'
 wavDir = f'{pathDir}/wavAudio'
 processedDir = f'{pathDir}/processedAudio'
 streamDir = f'{pathDir}/streamAudio'
+
 
 async def main(searchTerm, speedFactor, reverbFactor, overdriveFactor, reverse):
 

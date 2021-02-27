@@ -32,7 +32,8 @@ class Dirs(dict):
     }
 
     def __init__(self):
-        self.basePath = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)) + '/audiofiles'
+        self.basePath = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), os.pardir)) + '/audiofiles'
 
     def dirsSetup(self):
         self.configDirs()
@@ -66,6 +67,7 @@ class Dirs(dict):
             if not os.path.exists(dir.dirPath):
                 os.makedirs(dir.dirPath)
 
+
 class Dir():
 
     def __init__(self, dirName, dirConfig, basePath):
@@ -86,6 +88,7 @@ class Dir():
         make necessary dir 
 
     '''
+
 
 if __name__ == '__main__':
     dirs = Dirs()
