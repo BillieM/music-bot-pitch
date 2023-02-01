@@ -7,12 +7,23 @@ from queues import Queues
 from songs import Song
 from dirs import Dirs
 
-bot = commands.Bot(command_prefix='#', description='music pitch bot')
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(
+    command_prefix='#',
+    description='music pitch bot',
+    intents = intents
+)
 apiToken = os.environ.get('MUSICBOT')
 dirs = Dirs()
 dirs.dirsSetup()
 queues = Queues(dirs)
 
+# force send messages to specific channel on these servers
+forceChannelServers = {
+    595971332991090717: 1069981278948044890
+}
 
 async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
 
@@ -37,12 +48,12 @@ async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
             if not queue.playing:
                 await playMusic(ctx)
             else:
-                await ctx.send(f'queued -> {song}')
+                await sendMessage(ctx, f'queued -> {song}')
         except Exception as e:
-            await ctx.send(traceback.format_exc())
+            await sendMessage(ctx, traceback.format_exc())
             print(traceback.format_exc())
     else:
-        await ctx.send(str(ctx.author.name) + "is not in a channel.")
+        await sendMessage(ctx, str(ctx.author.name) + "is not in a channel.")
 
 
 @bot.event
@@ -61,17 +72,17 @@ async def removeSong(ctx, arg1):
     queue = queues.getQueueObject(ctx.guild.id)
     try:
         song = queue[int(arg1)]
-        await ctx.send(f'removing song {song}')
+        await sendMessage(ctx, f'removing song {song}')
         queue.queueList.remove(song)
     except Exception as e:
-        await ctx.send(e)
+        await sendMessage(ctx, e)
         print(traceback.format_exc())
 
 
 @bot.command(name='queue')
 async def showQueue(ctx):
     queue = queues.getQueueObject(ctx.guild.id)
-    await ctx.send(queue)
+    await sendMessage(ctx, queue)
 
 
 @bot.command(name='play')
@@ -96,7 +107,7 @@ async def playMusic(ctx):
 
     song = queue.getNextSong()
 
-    await ctx.send(f"now playing:\n{song}")
+    await sendMessage(ctx, f"now playing:\n{song}")
     queue.vc.play(discord.FFmpegPCMAudio(source=song.streamPath))
 
     while queue.vc.is_playing():
@@ -107,15 +118,23 @@ async def playMusic(ctx):
             queue.skip = False
     else:
         await song.postStreamClean()
-        await ctx.send("song finished/ skipped!")
+        await sendMessage(ctx, "song finished/ skipped!")
 
     queue.removeCurrentSong()
 
     if queue.isNextSong():
         await playMusic(ctx)
     else:
-        await ctx.send("queue finished, disconnecting")
+        await sendMessage(ctx, "queue finished, disconnecting")
         queue.playing = False
         await queue.vc.disconnect()
+
+async def sendMessage(ctx, msg):
+
+    if ctx.guild.id in forceChannelServers:
+        channel = bot.get_channel(forceChannelServers[ctx.guild.id])
+        await channel.send(msg)
+    else:
+        await ctx.send(msg) 
 
 bot.run(apiToken)

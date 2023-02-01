@@ -90,9 +90,18 @@ class Song():
 
         if not os.path.isfile(songPath):
             yt = YouTube(self.url)
-            audioStream = yt.streams.filter(only_audio=True).first()
-            audioStream.download(downloadedAudioDirPath,
-                                 filename=self.fileName)
+
+            audioStream = yt.streams.filter(
+                only_audio=True,
+                file_extension='mp4',
+            ).first()
+
+            print(audioStream)
+
+            audioStream.download(
+                downloadedAudioDirPath,
+                filename=f'{self.fileName}.mp4'
+            )
 
     async def mp4ToWav(self):
         mp4DirPath = self.dirs['downloadedAudio'].dirPath

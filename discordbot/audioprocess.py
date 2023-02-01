@@ -1,13 +1,13 @@
-from pytube import YouTube
 import os
 from youtubesearchpython import VideosSearch
 from pprint import pprint
+from pytube import YouTube
 from pysndfx import AudioEffectsChain
 import random
 from string import ascii_letters
 import time
 from pydub import AudioSegment
-
+import asyncio
 
 async def generateFileName():
     random.seed(time.time())
@@ -27,10 +27,18 @@ async def getUrlFromSearchTerm(searchTerm):
 
 async def downloadAudioFromYoutube(url, fileName):
 
+    print(url, fileName, youtubeDir)
+
     try:
         yt = YouTube(url)
-        audioStream = yt.streams.filter(only_audio=True).first()
-        audioStream.download(youtubeDir, filename=fileName)
+        audioStream = yt.streams.filter(
+            only_audio=True,
+            file_extension='mp4',
+        ).first()
+
+        print(audioStream)
+
+        audioStream.download(youtubeDir, filename=f'{fileName}.mp4')
         return True
 
     except Exception as e:
@@ -117,12 +125,16 @@ async def main(searchTerm, speedFactor, reverbFactor, overdriveFactor, reverse):
     print(f'title -> {songTitle}')
     downloadSuccess = await downloadAudioFromYoutube(youtubeUrl, fileName)
     print(f'download success -> {downloadSuccess}')
-    convertToWav = await mp4ToWav(fileName)
-    audioEffects = await addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor, reverse)
-    convertToMp4 = await wavToMp4(fileName)
-    cleanup = await cleanDirs()
+    await mp4ToWav(fileName)
+    await addAudioEffects(fileName, speedFactor, reverbFactor, overdriveFactor, reverse)
+    await wavToMp4(fileName)
+    await cleanDirs()
 
     return fileName, songTitle
+
+async def testAdd(searchTerm, speedFactor, reverbFactor):
+    await main(searchTerm, speedFactor, reverbFactor, 0, False)
+
 
 if __name__ == '__main__':
 
@@ -130,4 +142,4 @@ if __name__ == '__main__':
     speedFactor = input("what speed factor? (2 = double speed) ")
     reverbFactor = input("what reverb factor? (0-100) ")
 
-    main(searchTerm, speedFactor, reverbFactor)
+    asyncio.run(main(searchTerm, speedFactor, reverbFactor, 0, False))
