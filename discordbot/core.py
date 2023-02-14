@@ -6,14 +6,16 @@ import traceback
 from queues import Queues
 from songs import Song
 from dirs import Dirs
+from random import choice
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 bot = commands.Bot(
     command_prefix='#',
     description='music pitch bot',
-    intents = intents
+    intents=intents
 )
 apiToken = os.environ.get('MUSICBOT')
 dirs = Dirs()
@@ -24,6 +26,7 @@ queues = Queues(dirs)
 forceChannelServers = {
     595971332991090717: 1069981278948044890
 }
+
 
 async def addToQueue(ctx, arg1, arg2, arg3, arg4, reverse):
 
@@ -81,7 +84,7 @@ async def removeSong(ctx, arg1):
 
 @bot.command(name='queue')
 async def showQueue(ctx):
-    queue = queues.getQueueObject(ctx.guild.id)
+    queue = queues.getQueueObjectsend(ctx.guild.id)
     await sendMessage(ctx, queue)
 
 
@@ -94,6 +97,19 @@ async def queueMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
 async def queueRevMusic(ctx, arg1, arg2=None, arg3=None, arg4=None):
     await addToQueue(ctx, arg1, arg2, arg3, arg4, reverse=True)
 
+
+@bot.command(name='roulette')
+async def roulette(ctx):
+    members = ctx.message.guild.members
+
+    while True:
+        selected = choice(members)
+        if not selected.bot:
+            break
+    
+    msg = f'{selected.display_name} ({selected}) HAS BEEN SELECTED.'
+
+    await sendMessage(ctx, msg)
 
 async def playMusic(ctx):
 
@@ -129,12 +145,13 @@ async def playMusic(ctx):
         queue.playing = False
         await queue.vc.disconnect()
 
+
 async def sendMessage(ctx, msg):
 
     if ctx.guild.id in forceChannelServers:
         channel = bot.get_channel(forceChannelServers[ctx.guild.id])
         await channel.send(msg)
     else:
-        await ctx.send(msg) 
+        await ctx.send(msg)
 
 bot.run(apiToken)
